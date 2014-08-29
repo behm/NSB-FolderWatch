@@ -29,8 +29,7 @@ namespace FolderWatcher.Tasks
             CheckFilePaths();
 
             Logger.InfoFormat("Scheduling process to run every {0} minutes", interval);
-            //Schedule.Every(TimeSpan.FromMinutes(interval)).Action(ProcessFilesInWatchFolder);
-            Schedule.Every(TimeSpan.FromSeconds(10)).Action(ProcessFilesInWatchFolder);
+            Schedule.Every(TimeSpan.FromMinutes(interval)).Action(ProcessFilesInWatchFolder);
         }
 
         public void Stop()
