@@ -15,6 +15,11 @@ namespace FolderWatcher.Tasks
     {
         private static readonly ILog Logger = LogManager.GetLogger(typeof (FileProcessor));
 
+        private const string DesktopFolder = "{Desktop}";
+        private const string LocalApplicationData = "{LocalApplicationData}";
+        private const string ApplicationData = "{ApplicationData}";
+        // todo: add more special folder constants here
+
         public void Start()
         {
             Logger.Info("Starting FileProcessor");
@@ -171,17 +176,24 @@ namespace FolderWatcher.Tasks
 
         private string GetFolderToWatchPath()
         {
-            return ConfigurationManager.AppSettings["FolderToWatch"] ?? Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            return GetFolderPathFromSettings("FolderToWatch");
         }
 
         private string GetProcessingFolderPath()
         {
-            return ConfigurationManager.AppSettings["ProcessingFolder"];
+            return GetFolderPathFromSettings("ProcessingFolder");
         }
 
         private string GetErrorFolderPath()
         {
-            return ConfigurationManager.AppSettings["ErrorFolder"];
+            return GetFolderPathFromSettings("ErrorFolder");
+        }
+
+        private string GetFolderPathFromSettings(string settingName)
+        {
+            var folderPath = ConfigurationManager.AppSettings[settingName];
+
+            return ReplaceSpecialFolders(folderPath);
         }
 
         private void CheckFilePaths()
@@ -234,6 +246,28 @@ namespace FolderWatcher.Tasks
             }
 
             return Path.Combine(targetFolder, fileName);
+        }
+
+        private string ReplaceSpecialFolders(string filePath)
+        {
+            if (filePath.Contains(DesktopFolder))
+            {
+                filePath = filePath.Replace(DesktopFolder, Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
+            }
+
+            if (filePath.Contains(LocalApplicationData))
+            {
+                filePath = filePath.Replace(LocalApplicationData, Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
+            }
+
+            if (filePath.Contains(ApplicationData))
+            {
+                filePath = filePath.Replace(ApplicationData, Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
+            }
+
+            // todo: add more support for special folders
+
+            return filePath;
         }
     }
 }
